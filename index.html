@@ -1,104 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Birthday Surprise ❤️</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Birthday Surprise ❤️</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
-      font-family: 'Poppins', sans-serif;
-    }
+<style>
+*{box-sizing:border-box;font-family:Poppins,sans-serif}
+body{
+  margin:0;
+  background:linear-gradient(135deg,#ff9a9e,#fad0c4);
+  color:#fff;
+}
+.page{
+  display:none;
+  min-height:100vh;
+  text-align:center;
+  padding:40px;
+}
+.page.active{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+}
+button{
+  padding:12px 26px;
+  font-size:18px;
+  border:none;
+  border-radius:30px;
+  background:#fff;
+  color:#ff4d6d;
+  cursor:pointer;
+  margin:10px;
+}
+#noBtn{position:relative}
 
-    body {
-      margin: 0;
-      background: linear-gradient(135deg, #ff9a9e, #fad0c4);
-      color: #fff;
-      overflow-x: hidden;
-    }
+/* Cake */
+.cake{
+  width:200px;
+  height:200px;
+  background:#ff6f91;
+  border-radius:20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:22px;
+  cursor:pointer;
+  user-select:none;
+}
 
-    .page {
-      display: none;
-      min-height: 100vh;
-      padding: 40px;
-      text-align: center;
-    }
-
-    .active {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-    }
-
-    h1, h2 {
-      margin-bottom: 20px;
-    }
-
-    button {
-      padding: 12px 28px;
-      font-size: 18px;
-      border: none;
-      border-radius: 30px;
-      cursor: pointer;
-      background: #fff;
-      color: #ff4d6d;
-      margin: 10px;
-      transition: 0.3s;
-    }
-
-    button:hover {
-      transform: scale(1.05);
-    }
-
-    #noBtn {
-      position: relative;
-    }
-
-    /* Cake */
-    .cake {
-      width: 200px;
-      height: 200px;
-      background: #ff6f91;
-      border-radius: 20px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-      transition: 0.4s;
-    }
-
-    .cake.cut {
-      background: #d62839;
-      transform: scale(1.05);
-    }
-
-    /* Book */
-    .book {
-      width: 300px;
-      min-height: 200px;
-      background: #fff;
-      color: #000;
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-      white-space: pre-line;
-    }
-  </style>
+/* Book */
+.book{
+  width:320px;
+  background:#fff;
+  color:#000;
+  padding:20px;
+  border-radius:10px;
+  white-space:pre-line;
+}
+</style>
 </head>
 
 <body>
 
 <!-- PAGE 1 -->
 <div class="page active" id="page1">
-  <h1>Wait for something Special 😉 ❤️</h1>
-  <h2 id="timer">Loading...</h2>
+  <h1>Wait for something Special ❤️</h1>
+  <h2 id="timer">00:00:00</h2>
 
-  <div id="readySection" style="display:none;">
+  <div id="ready" style="display:none">
     <h2>Are you ready for surprise? 😘</h2>
-    <button onclick="nextPage(2)">Yes</button>
+    <button onclick="go(2)">Yes</button>
     <button id="noBtn">No</button>
   </div>
 </div>
@@ -107,10 +80,10 @@
 <div class="page" id="page2">
   <h1>Click the Cake 🎂</h1>
   <div class="cake" id="cake">Cut Me</div>
-  <h2 id="cakeText" style="display:none;">
+  <h2 id="cakeMsg" style="display:none">
     Happy Birthday My Pyaari Mahila ❤️
   </h2>
-  <button id="moreBtn" style="display:none;" onclick="nextPage(3)">
+  <button id="moreBtn" style="display:none" onclick="go(3)">
     Something More Special
   </button>
 </div>
@@ -118,100 +91,92 @@
 <!-- PAGE 3 -->
 <div class="page" id="page3">
   <h1>Just for You 📖</h1>
-  <div class="book" id="bookText"></div>
-  <button onclick="nextPage(4)">Next</button>
+  <div class="book" id="book"></div>
+  <button onclick="go(4)">Next</button>
 </div>
 
 <!-- PAGE 4 -->
 <div class="page" id="page4">
   <h1>One Last Thing 💖</h1>
   <h2>
-    I wanna give you a much better surprise than this, fully made by me ❤️<br><br>
-    But due to my exams I am unable to complete it.<br><br>
+    I wanted to give you a much better surprise fully made by me ❤️<br><br>
+    But due to my exams I couldn’t complete it.<br><br>
     This is all I can do right now 😔
   </h2>
 </div>
 
 <script>
-  /* ---------- TIMER (FIXED PERMANENTLY) ---------- */
+/* ---------- TIMER ---------- */
+const timerEl=document.getElementById("timer");
+const ready=document.getElementById("ready");
 
-  const timerEl = document.getElementById('timer');
-  const readySection = document.getElementById('readySection');
+// target = today 12 AM
+const now=new Date();
+const target=new Date(
+  now.getFullYear(),
+  now.getMonth(),
+  now.getDate(),
+  0,0,0
+);
 
-  // Fixed target: TODAY 12:00 AM
-  const now = new Date();
-  const target = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    now.getDate(),
-    0, 0, 0
-  );
-
-  function updateTimer() {
-    const current = new Date();
-    const diff = target - current;
-
-    if (diff <= 0) {
-      timerEl.innerText = "00:00:00";
-      readySection.style.display = "block";
-      clearInterval(timerInterval);
-      return;
-    }
-
-    const h = String(Math.floor(diff / 1000 / 60 / 60)).padStart(2, '0');
-    const m = String(Math.floor(diff / 1000 / 60) % 60).padStart(2, '0');
-    const s = String(Math.floor(diff / 1000) % 60).padStart(2, '0');
-
-    timerEl.innerText = `${h}:${m}:${s}`;
+function timer(){
+  const diff=target-new Date();
+  if(diff<=0){
+    timerEl.innerText="00:00:00";
+    ready.style.display="block";
+    clearInterval(int);
+    return;
   }
+  const h=String(Math.floor(diff/1000/60/60)).padStart(2,"0");
+  const m=String(Math.floor(diff/1000/60)%60).padStart(2,"0");
+  const s=String(Math.floor(diff/1000)%60).padStart(2,"0");
+  timerEl.innerText=`${h}:${m}:${s}`;
+}
+timer();
+const int=setInterval(timer,1000);
 
-  updateTimer();
-  const timerInterval = setInterval(updateTimer, 1000);
+/* ---------- NO BUTTON ---------- */
+const noBtn=document.getElementById("noBtn");
+noBtn.onmouseover=()=>{
+  noBtn.style.left=Math.random()*200-100+"px";
+  noBtn.style.top=Math.random()*200-100+"px";
+};
 
-  /* ---------- NO BUTTON RUN AWAY ---------- */
+/* ---------- CAKE (FIXED 100%) ---------- */
+const cake=document.getElementById("cake");
+cake.addEventListener("click",()=>{
+  cake.innerText="Yummy 😋";
+  cake.style.background="#d62839";
+  document.getElementById("cakeMsg").style.display="block";
+  document.getElementById("moreBtn").style.display="inline-block";
+});
 
-  const noBtn = document.getElementById('noBtn');
-  noBtn.addEventListener('mouseover', () => {
-    noBtn.style.left = Math.random() * 200 - 100 + 'px';
-    noBtn.style.top = Math.random() * 200 - 100 + 'px';
-  });
-
-  /* ---------- CAKE CUT ---------- */
-
-  const cake = document.getElementById('cake');
-  cake.addEventListener('click', () => {
-    cake.classList.add('cut');
-    cake.innerText = "Yummy 😋";
-    document.getElementById('cakeText').style.display = "block";
-    document.getElementById('moreBtn').style.display = "inline-block";
-  });
-
-  /* ---------- BOOK MESSAGE ---------- */
-
-  const message = `Hey My Pyari Hrami Mahila,
+/* ---------- BOOK ---------- */
+document.getElementById("book").innerText=
+`Hey My Pyari Hrami Mahila,
 
 I just wanna wish you a very happy birthday.
-You always live with full joy and fun, and I want every birthday to make you happier than before.
+You always live with full joy and fun,
+and I want every birthday to make you happier than before.
 
 I love you very much ❤️
-I love all your Hrami harkat and all my favorite special things.
+I love all your Hrami harkat and my favorite special things.
 
-Mujhe bahut mann tha tumhara birthday tumhare saath akele celebrate karne ka,
+Mujhe bahut mann tha tumhara birthday
+tumhare saath akele celebrate karne ka,
 par exams ki wajah se nahi kar paya.
 
-But don't be sad —
+But don’t be sad —
 kuch din baad bahut achhe se celebrate karenge.`;
 
-  document.getElementById('bookText').innerText = message;
-
-  /* ---------- PAGE NAV ---------- */
-
-  function nextPage(n) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById('page' + n).classList.add('active');
-  }
+/* ---------- NAV ---------- */
+function go(n){
+  document.querySelectorAll(".page")
+    .forEach(p=>p.classList.remove("active"));
+  document.getElementById("page"+n)
+    .classList.add("active");
+}
 </script>
 
 </body>
 </html>
-
